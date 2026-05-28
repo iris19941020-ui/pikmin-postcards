@@ -1,0 +1,356 @@
+[
+  {
+    "image": "/images/images (45).jpg",
+    "coords": "27.486290, -109.941340",
+    "method": "菇",
+    "country": "墨西哥"
+  },
+  {
+    "image": "/images/images (40).jpg",
+    "coords": "35.345078, 138.557510",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (39).jpg",
+    "coords": "-19.272987, 146.760414",
+    "method": "菇",
+    "country": "澳洲"
+  },
+  {
+    "image": "/images/images (38).jpg",
+    "coords": "35.443645, 138.602207",
+    "method": "花",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (37).jpg",
+    "coords": "35.729983, 139.717276",
+    "method": "掃描",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (36).jpg",
+    "coords": "33.906931, 132.709522",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (35).jpg",
+    "coords": "34.012863, -84.195828",
+    "method": "菇",
+    "country": "美國"
+  },
+  {
+    "image": "/images/images (34).jpg",
+    "coords": "45.355040, -110.726845",
+    "method": "菇",
+    "country": "美國"
+  },
+  {
+    "image": "/images/images (33).jpg",
+    "coords": "34.706164, 135.498290",
+    "method": "花",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (32).jpg",
+    "coords": "39.757216, 140.794746",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (31).jpg",
+    "coords": "47.561795, 10.694831",
+    "method": "花",
+    "country": "德國"
+  },
+  {
+    "image": "/images/images (30).jpg",
+    "coords": "35.344903, 138.557532",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (29).jpg",
+    "coords": "34.365473, 132.317684",
+    "method": "花",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (9).jpg",
+    "coords": "51.082498, -115.349944",
+    "method": "花",
+    "country": "加拿大"
+  },
+  {
+    "image": "/images/images (10).jpg",
+    "coords": "35.690838, 139.704342",
+    "method": "掃描",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (11).jpg",
+    "coords": "39.584623, -119.745634",
+    "method": "菇",
+    "country": "美國"
+  },
+  {
+    "image": "/images/images (12).jpg",
+    "coords": "41.391733, 2.164972",
+    "method": "花",
+    "country": "西班牙"
+  },
+  {
+    "image": "/images/images (28).jpg",
+    "coords": "36.404049, 140.599841",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (23).jpg",
+    "coords": "42.938984, 143.298808",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (18).jpg",
+    "coords": "7.156331, 125.681984",
+    "method": "菇",
+    "country": "菲律賓"
+  },
+  {
+    "image": "/images/images (17).jpg",
+    "coords": "45.506475, 10.827729",
+    "method": "菇",
+    "country": "義大利"
+  },
+  {
+    "image": "/images/images (16).jpg",
+    "coords": "42.980343, 16.022535",
+    "method": "菇",
+    "country": "克羅埃西亞"
+  },
+  {
+    "image": "/images/images (15).jpg",
+    "coords": "-34.524100, -58.747652",
+    "method": "花",
+    "country": "阿根廷"
+  },
+  {
+    "image": "/images/images (14).jpg",
+    "coords": "61.485172, 23.482692",
+    "method": "菇",
+    "country": "芬蘭"
+  },
+  {
+    "image": "/images/images (13).jpg",
+    "coords": "35.659419, 134.831042",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (8).jpg",
+    "coords": "46.118726, 9.278769",
+    "method": "菇",
+    "country": "義大利"
+  },
+  {
+    "image": "/images/images (6).jpg",
+    "coords": "37.666255, 140.486410",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (1).jpg",
+    "coords": "35.138112, 129.052223",
+    "method": "菇",
+    "country": "韓國"
+  },
+  {
+    "image": "/images/images (58).jpg",
+    "coords": "19.538568, -99.066156",
+    "method": "菇",
+    "country": "墨西哥"
+  },
+  {
+    "image": "/images/images (57).jpg",
+    "coords": "54.419670, -2.962269",
+    "method": "菇",
+    "country": "英國"
+  },
+  {
+    "image": "/images/images (56).jpg",
+    "coords": "41.964468, -76.510629",
+    "method": "菇",
+    "country": "美國"
+  },
+  {
+    "image": "/images/images (55).jpg",
+    "coords": "58.7122720,-111.1538970",
+    "method": "花",
+    "country": "加拿大"
+  },
+  {
+    "image": "/images/images (7).jpg",
+    "coords": "61.3008830, -149.5153750",
+    "method": "菇",
+    "country": "美國"
+  },
+  {
+    "image": "/images/images (54).jpg",
+    "coords": "50.533221, 5.570948",
+    "method": "菇",
+    "country": "比利時"
+  },
+  {
+    "image": "/images/images (50).jpg",
+    "coords": "35.196674,129.215820",
+    "method": "菇",
+    "country": "韓國"
+  },
+  {
+    "image": "/images/images (27).jpg",
+    "coords": "34.5243650, 136.5669700",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (43).jpg",
+    "coords": "40.614672,139.862797",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (25).jpg",
+    "coords": "26.6879770, 128.0031530",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (24).jpg",
+    "coords": "39.159196,-77.277885",
+    "method": "菇",
+    "country": "美國"
+  },
+  {
+    "image": "/images/images (51).jpg",
+    "coords": "64.8848,12.437688",
+    "method": "菇",
+    "country": "挪威"
+  },
+  {
+    "image": "/images/images (52).jpg",
+    "coords": "37.518754,139.907161",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (53).jpg",
+    "coords": "46.02690, 11.05860",
+    "method": "菇",
+    "country": "義大利"
+  },
+  {
+    "image": "/images/images (5).jpg",
+    "coords": "35.695937, -81.237003",
+    "method": "菇",
+    "country": "美國"
+  },
+  {
+    "image": "/images/images (49).jpg",
+    "coords": "35.110016,138.842256",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (48).jpg",
+    "coords": "33.307124,130.610549",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (46).jpg",
+    "coords": "42.354014,142.354183",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (47).jpg",
+    "coords": "35.295830,138.959259",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (19).jpg",
+    "coords": "52.461281,-1.925617",
+    "method": "菇",
+    "country": "英國"
+  },
+  {
+    "image": "/images/images (22).jpg",
+    "coords": "51.3696830, 9.7648130",
+    "method": "菇",
+    "country": "德國"
+  },
+  {
+    "image": "/images/images (3).jpg",
+    "coords": "36.272470, 139.072776",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (41).jpg",
+    "coords": "-62.199886,-58.967322",
+    "method": "菇",
+    "country": "南極"
+  },
+  {
+    "image": "/images/images (42).jpg",
+    "coords": "-65.245622,-64.258723",
+    "method": "菇",
+    "country": "南極"
+  },
+  {
+    "image": "/images/images (20).jpg",
+    "coords": "46.4697040, 30.7396460",
+    "method": "菇",
+    "country": "烏克蘭"
+  },
+  {
+    "image": "/images/images (4).jpg",
+    "coords": "34.1533860,135.6042340",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (44).jpg",
+    "coords": "34.8112630,137.2323610",
+    "method": "菇",
+    "country": "日本"
+  },
+  {
+    "image": "/images/images (2).jpg",
+    "coords": "28.474587, -81.466449",
+    "method": "菇",
+    "country": "美國"
+  },
+  {
+    "image": "/images/images (21).jpg",
+    "coords": "37.2875344,126.9916082",
+    "method": "菇",
+    "country": "韓國"
+  },
+  {
+    "image": "/images/images (43).jpg",
+    "coords": "42.6256690, -6.5220660",
+    "method": "菇",
+    "country": "西班牙"
+  },
+  {
+    "image": "/uploads/1779996047017-CF711B1C-11BD-4BA7-800C-F27D9B85EF20.jpg",
+    "coords": " 47.6459320, 15.8253770",
+    "method": "菇",
+    "country": "奧地利"
+  }
+]
