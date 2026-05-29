@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 type Postcard = {
   id: number;
@@ -13,8 +12,8 @@ type Postcard = {
 
 export default function Home() {
   const [data, setData] = useState<Postcard[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   const [countryFilter, setCountryFilter] = useState("all");
   const [methodFilter, setMethodFilter] = useState("all");
@@ -26,25 +25,16 @@ export default function Home() {
     country: "",
   });
 
-  // ===== 讀資料 =====
   const loadData = async () => {
-    const { data, error } = await supabase
-      .from("postcards")
-      .select("*")
-      .order("id", { ascending: false });
+    const res = await fetch("/api/postcards");
+    const json = await res.json();
 
-    if (!error) setData(data || []);
+    setData(json.reverse());
   };
 
   useEffect(() => {
     loadData();
   }, []);
-
-  const isValid =
-    form.image &&
-    form.coords.trim() &&
-    form.method &&
-    form.country.trim();
 
   const filteredData = data.filter((card) => {
     const countryMatch =
@@ -57,239 +47,264 @@ export default function Home() {
   });
 
   const countries = Array.from(new Set(data.map((d) => d.country)));
+
   const methods = Array.from(new Set(data.map((d) => d.method)));
 
-  // ===== 上傳 =====
-  const handleUpload = async () => {
-    if (!form.image) return;
-
-    const fileName = `${Date.now()}-${form.image.name}`;
-
-    // 1. upload image
-    const { error: uploadError } = await supabase.storage
-      .from("postcards")
-      .upload(fileName, form.image);
-
-    if (uploadError) {
-      alert("圖片上傳失敗");
-      return;
-    }
-
-    // 2. public url
-    const { data: urlData } = supabase.storage
-      .from("postcards")
-      .getPublicUrl(fileName);
-
-    // 3. insert DB
-    await supabase.from("postcards").insert({
-      image: urlData.publicUrl,
-      coords: form.coords,
-      method: form.method,
-      country: form.country,
-    });
-
-    setForm({
-      image: null,
-      coords: "",
-      method: "菇",
-      country: "",
-    });
-
-    loadData();
-  };
-
-  // ===== delete =====
-  const handleDelete = async (id: number) => {
-    await supabase.from("postcards").delete().eq("id", id);
-    loadData();
-  };
-
-  // ===== update =====
-  const handleUpdate = async (card: Postcard) => {
-    const coords = prompt("座標", card.coords);
-    const country = prompt("國家", card.country);
-    const method = prompt("方式", card.method);
-
-    if (!coords || !country || !method) return;
-
-    await supabase
-      .from("postcards")
-      .update({ coords, country, method })
-      .eq("id", card.id);
-
-    setOpenMenuId(null);
-    loadData();
-  };
+  const isValid =
+    form.image &&
+    form.coords.trim() &&
+    form.method &&
+    form.country.trim();
 
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold mb-6">
-        Pikmin 明信片收藏
-      </h1>
+    <main className="min-h-screen bg-stone-50 text-stone-800">
 
-      {/* ===== 上傳 ===== */}
-      <div className="grid gap-2 max-w-md mb-6">
-        <input
-          type="file"
-          accept="image/*"
-          className="border p-2"
-          onChange={(e) =>
-            setForm({ ...form, image: e.target.files?.[0] || null })
-          }
-        />
+      {/* HERO */}
+      <section className="px-6 md:px-12 pt-12 pb-8">
+        <div className="max-w-7xl mx-auto">
 
-        <input
-          placeholder="座標"
-          className="border p-2"
-          value={form.coords}
-          onChange={(e) =>
-            setForm({ ...form, coords: e.target.value })
-          }
-        />
+          <p className="text-sm tracking-[0.25em] uppercase text-stone-400 mb-3">
+            Pikmin Collection
+          </p>
 
-        <select
-          className="border p-2"
-          value={form.method}
-          onChange={(e) =>
-            setForm({ ...form, method: e.target.value })
-          }
-        >
-          <option value="菇">菇</option>
-          <option value="掃描">掃描</option>
-          <option value="花">花</option>
-        </select>
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight">
+            Pikmin Postcards
+          </h1>
 
-        <input
-          placeholder="國家"
-          className="border p-2"
-          value={form.country}
-          onChange={(e) =>
-            setForm({ ...form, country: e.target.value })
-          }
-        />
+          <p className="mt-4 text-stone-500 max-w-xl leading-relaxed">
+            世界各地的皮克敏明信片收藏。
+          </p>
 
-        <button
-          disabled={!isValid}
-          onClick={handleUpload}
-          className="bg-black text-white p-2 rounded disabled:opacity-40"
-        >
-          新增明信片
-        </button>
-      </div>
+          <div className="flex gap-3 mt-8">
 
-      {/* ===== filter ===== */}
-      <div className="flex gap-3 mb-6">
-        <select
-          className="border p-2"
-          value={countryFilter}
-          onChange={(e) => setCountryFilter(e.target.value)}
-        >
-          <option value="all">全部國家</option>
-          {countries.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+            <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-stone-100">
+              <p className="text-2xl font-bold">{data.length}</p>
 
-        <select
-          className="border p-2"
-          value={methodFilter}
-          onChange={(e) => setMethodFilter(e.target.value)}
-        >
-          <option value="all">全部方式</option>
-          {methods.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
+              <p className="text-xs text-stone-500 mt-1">
+                明信片
+              </p>
+            </div>
 
-        <button
-          className="border px-3"
-          onClick={() => {
-            setCountryFilter("all");
-            setMethodFilter("all");
-          }}
-        >
-          清除
-        </button>
-      </div>
+            <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-stone-100">
+              <p className="text-2xl font-bold">
+                {countries.length}
+              </p>
 
-      {/* ===== Pinterest ===== */}
-      <div className="columns-2 md:columns-3 lg:columns-4 gap-3 space-y-3">
-        {filteredData.map((card) => (
-          <div
-            key={card.id}
-            className="break-inside-avoid border rounded p-2 relative mb-3"
-          >
-            <img
-              src={card.image}
-              className="w-full rounded cursor-pointer"
-              onClick={() => setSelectedImage(card.image)}
-            />
+              <p className="text-xs text-stone-500 mt-1">
+                國家
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <p className="mt-2 text-sm font-semibold">
-              {card.coords || "無座標"}
-            </p>
+      {/* floating add button */}
+      <button
+        onClick={() => setShowUploadModal(true)}
+        className="fixed bottom-6 right-6 z-40 w-16 h-16 rounded-full bg-stone-900 text-white text-3xl shadow-xl hover:scale-105 transition"
+      >
+        +
+      </button>
 
-            <p className="text-xs text-gray-500">
-              {card.country} · {card.method}
-            </p>
+      {/* upload modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-5">
 
-            {/* ⋯ menu */}
+          <div className="w-full max-w-xl bg-white rounded-[2rem] shadow-2xl p-6 relative">
+
             <button
-              className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 shadow"
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenMenuId(
-                  openMenuId === card.id ? null : card.id
-                );
-              }}
+              onClick={() => setShowUploadModal(false)}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-stone-100 hover:bg-stone-200 transition"
             >
-              ⋯
+              ✕
             </button>
 
-            {openMenuId === card.id && (
-              <>
-                <div
-                  className="fixed inset-0"
-                  onClick={() => setOpenMenuId(null)}
-                />
+            <div className="mb-6">
+              <p className="text-sm tracking-[0.2em] uppercase text-stone-400 mb-2">
+                Add postcard
+              </p>
 
-                <div className="absolute top-10 right-2 bg-white border rounded shadow z-20 w-28 text-sm">
-                  <button
-                    className="w-full px-3 py-2 hover:bg-gray-100 text-left"
-                    onClick={() => handleUpdate(card)}
-                  >
-                    編輯
-                  </button>
+              <h2 className="text-3xl font-black tracking-tight">
+                新增明信片
+              </h2>
+            </div>
 
-                  <button
-                    className="w-full px-3 py-2 hover:bg-red-50 text-left text-red-600"
-                    onClick={() => handleDelete(card.id)}
-                  >
-                    刪除
-                  </button>
-                </div>
-              </>
-            )}
+            <div className="grid gap-3">
+
+              <input
+                type="file"
+                accept="image/*"
+                className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    image: e.target.files?.[0] || null,
+                  })
+                }
+              />
+
+              <input
+                placeholder="座標"
+                className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
+                value={form.coords}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    coords: e.target.value,
+                  })
+                }
+              />
+
+              <select
+                className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
+                value={form.method}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    method: e.target.value,
+                  })
+                }
+              >
+                <option value="菇">菇</option>
+                <option value="掃描">掃描</option>
+                <option value="花">花</option>
+              </select>
+
+              <input
+                placeholder="國家"
+                className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
+                value={form.country}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    country: e.target.value,
+                  })
+                }
+              />
+
+              <button
+                disabled={!isValid}
+                className="mt-2 h-14 rounded-2xl bg-stone-900 text-white font-medium disabled:opacity-40"
+                onClick={async () => {
+                  const fd = new FormData();
+
+                  fd.append("image", form.image!);
+                  fd.append("coords", form.coords);
+                  fd.append("method", form.method);
+                  fd.append("country", form.country);
+
+                  await fetch("/api/postcards", {
+                    method: "POST",
+                    body: fd,
+                  });
+
+                  setForm({
+                    image: null,
+                    coords: "",
+                    method: "菇",
+                    country: "",
+                  });
+
+                  setShowUploadModal(false);
+
+                  loadData();
+                }}
+              >
+                新增明信片
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
-
-      {/* ===== lightbox ===== */}
-      {selectedImage && (
-        <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center"
-          onClick={() => setSelectedImage(null)}
-        >
-          <img
-            src={selectedImage}
-            className="max-w-[90%] max-h-[90%]"
-          />
         </div>
       )}
+
+      {/* filters */}
+      <section className="px-6 md:px-12 mb-8">
+        <div className="max-w-7xl mx-auto flex flex-wrap gap-3">
+
+          <select
+            className="bg-white border border-stone-200 rounded-full px-5 py-2 text-sm shadow-sm"
+            value={countryFilter}
+            onChange={(e) =>
+              setCountryFilter(e.target.value)
+            }
+          >
+            <option value="all">全部國家</option>
+
+            {countries.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="bg-white border border-stone-200 rounded-full px-5 py-2 text-sm shadow-sm"
+            value={methodFilter}
+            onChange={(e) =>
+              setMethodFilter(e.target.value)
+            }
+          >
+            <option value="all">全部方式</option>
+
+            {methods.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
+
+      {/* gallery */}
+      <section className="px-4 md:px-10 pb-16">
+
+        <div className="columns-2 md:columns-3 lg:columns-5 gap-5 space-y-5">
+
+          {filteredData.map((card) => (
+            <div
+              key={card.id}
+              className="break-inside-avoid bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 border border-stone-100"
+            >
+
+              <div className="overflow-hidden">
+                <img
+                  src={card.image}
+                  className="w-full cursor-pointer hover:scale-[1.03] transition duration-500"
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      card.coords
+                    );
+
+                    alert("已複製座標！");
+                  }}
+                />
+              </div>
+
+              <div className="p-4">
+
+                <div className="flex items-center justify-between gap-2 mb-3">
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-stone-100 text-stone-600">
+                    {card.country}
+                  </span>
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-stone-900 text-white">
+                    {card.method}
+                  </span>
+                </div>
+
+                <p className="text-sm font-medium leading-relaxed break-all text-stone-700">
+                  {card.coords}
+                </p>
+
+                <p className="text-xs text-stone-400 mt-3">
+                  點擊圖片即可複製座標
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </main>
   );
 }
