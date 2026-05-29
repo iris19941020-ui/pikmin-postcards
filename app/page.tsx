@@ -12,11 +12,13 @@ type Postcard = {
 
 export default function Home() {
   const [data, setData] = useState<Postcard[]>([]);
-
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   const [countryFilter, setCountryFilter] = useState("all");
   const [methodFilter, setMethodFilter] = useState("all");
+
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     image: null as File | null,
@@ -28,13 +30,17 @@ export default function Home() {
   const loadData = async () => {
     const res = await fetch("/api/postcards");
     const json = await res.json();
-
     setData(json.reverse());
   };
 
   useEffect(() => {
     loadData();
   }, []);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  };
 
   const filteredData = data.filter((card) => {
     const countryMatch =
@@ -47,7 +53,6 @@ export default function Home() {
   });
 
   const countries = Array.from(new Set(data.map((d) => d.country)));
-
   const methods = Array.from(new Set(data.map((d) => d.method)));
 
   const isValid =
@@ -58,6 +63,13 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-stone-50 text-stone-800">
+
+      {/* toast */}
+      {toast && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-stone-900 text-white px-5 py-3 rounded-full shadow-lg text-sm z-50">
+          {toast}
+        </div>
+      )}
 
       {/* HERO */}
       <section className="px-6 md:px-12 pt-12 pb-8">
@@ -79,21 +91,14 @@ export default function Home() {
 
             <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-stone-100">
               <p className="text-2xl font-bold">{data.length}</p>
-
-              <p className="text-xs text-stone-500 mt-1">
-                明信片
-              </p>
+              <p className="text-xs text-stone-500 mt-1">明信片</p>
             </div>
 
             <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-stone-100">
-              <p className="text-2xl font-bold">
-                {countries.length}
-              </p>
-
-              <p className="text-xs text-stone-500 mt-1">
-                國家
-              </p>
+              <p className="text-2xl font-bold">{countries.length}</p>
+              <p className="text-xs text-stone-500 mt-1">國家</p>
             </div>
+
           </div>
         </div>
       </section>
@@ -123,10 +128,7 @@ export default function Home() {
               <p className="text-sm tracking-[0.2em] uppercase text-stone-400 mb-2">
                 Add postcard
               </p>
-
-              <h2 className="text-3xl font-black tracking-tight">
-                新增明信片
-              </h2>
+              <h2 className="text-3xl font-black">新增明信片</h2>
             </div>
 
             <div className="grid gap-3">
@@ -136,10 +138,7 @@ export default function Home() {
                 accept="image/*"
                 className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    image: e.target.files?.[0] || null,
-                  })
+                  setForm({ ...form, image: e.target.files?.[0] || null })
                 }
               />
 
@@ -148,10 +147,7 @@ export default function Home() {
                 className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
                 value={form.coords}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    coords: e.target.value,
-                  })
+                  setForm({ ...form, coords: e.target.value })
                 }
               />
 
@@ -159,10 +155,7 @@ export default function Home() {
                 className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
                 value={form.method}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    method: e.target.value,
-                  })
+                  setForm({ ...form, method: e.target.value })
                 }
               >
                 <option value="菇">菇</option>
@@ -175,42 +168,49 @@ export default function Home() {
                 className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
                 value={form.country}
                 onChange={(e) =>
-                  setForm({
-                    ...form,
-                    country: e.target.value,
-                  })
+                  setForm({ ...form, country: e.target.value })
                 }
               />
 
               <button
-                disabled={!isValid}
+                disabled={!isValid || loading}
                 className="mt-2 h-14 rounded-2xl bg-stone-900 text-white font-medium disabled:opacity-40"
                 onClick={async () => {
-                  const fd = new FormData();
+                  try {
+                    setLoading(true);
 
-                  fd.append("image", form.image!);
-                  fd.append("coords", form.coords);
-                  fd.append("method", form.method);
-                  fd.append("country", form.country);
+                    const fd = new FormData();
+                    fd.append("image", form.image!);
+                    fd.append("coords", form.coords);
+                    fd.append("method", form.method);
+                    fd.append("country", form.country);
 
-                  await fetch("/api/postcards", {
-                    method: "POST",
-                    body: fd,
-                  });
+                    const res = await fetch("/api/postcards", {
+                      method: "POST",
+                      body: fd,
+                    });
 
-                  setForm({
-                    image: null,
-                    coords: "",
-                    method: "菇",
-                    country: "",
-                  });
+                    if (!res.ok) throw new Error("upload failed");
 
-                  setShowUploadModal(false);
+                    setForm({
+                      image: null,
+                      coords: "",
+                      method: "菇",
+                      country: "",
+                    });
 
-                  loadData();
+                    setShowUploadModal(false);
+                    loadData();
+                    showToast("新增成功 ✨");
+
+                  } catch (err) {
+                    showToast("新增失敗 ❌");
+                  } finally {
+                    setLoading(false);
+                  }
                 }}
               >
-                新增明信片
+                {loading ? "上傳中..." : "新增明信片"}
               </button>
             </div>
           </div>
@@ -224,34 +224,25 @@ export default function Home() {
           <select
             className="bg-white border border-stone-200 rounded-full px-5 py-2 text-sm shadow-sm"
             value={countryFilter}
-            onChange={(e) =>
-              setCountryFilter(e.target.value)
-            }
+            onChange={(e) => setCountryFilter(e.target.value)}
           >
             <option value="all">全部國家</option>
-
             {countries.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
+              <option key={c} value={c}>{c}</option>
             ))}
           </select>
 
           <select
             className="bg-white border border-stone-200 rounded-full px-5 py-2 text-sm shadow-sm"
             value={methodFilter}
-            onChange={(e) =>
-              setMethodFilter(e.target.value)
-            }
+            onChange={(e) => setMethodFilter(e.target.value)}
           >
             <option value="all">全部方式</option>
-
             {methods.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
+              <option key={m} value={m}>{m}</option>
             ))}
           </select>
+
         </div>
       </section>
 
@@ -263,46 +254,34 @@ export default function Home() {
           {filteredData.map((card) => (
             <div
               key={card.id}
-              className="break-inside-avoid bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition duration-300 border border-stone-100"
+              className="break-inside-avoid bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition"
             >
 
-              <div className="overflow-hidden">
-                <img
-                  src={card.image}
-                  className="w-full cursor-pointer hover:scale-[1.03] transition duration-500"
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      card.coords
-                    );
-
-                    alert("已複製座標！");
-                  }}
-                />
-              </div>
+              <img
+                src={card.image}
+                className="w-full cursor-pointer hover:scale-[1.03] transition"
+                onClick={() => {
+                  navigator.clipboard.writeText(card.coords);
+                  showToast("已複製座標 📋");
+                }}
+              />
 
               <div className="p-4">
 
-                <div className="flex items-center justify-between gap-2 mb-3">
-
-                  <span className="text-xs px-3 py-1 rounded-full bg-stone-100 text-stone-600">
+                <div className="flex justify-between mb-3">
+                  <span className="text-xs px-3 py-1 rounded-full bg-stone-100">
                     {card.country}
                   </span>
-
                   <span className="text-xs px-3 py-1 rounded-full bg-stone-900 text-white">
                     {card.method}
                   </span>
                 </div>
 
-                <p className="text-sm font-medium leading-relaxed break-all text-stone-700">
-                  {card.coords}
-                </p>
-
-                <p className="text-xs text-stone-400 mt-3">
-                  點擊圖片即可複製座標
-                </p>
+                <p className="text-sm break-all">{card.coords}</p>
               </div>
             </div>
           ))}
+
         </div>
       </section>
     </main>
