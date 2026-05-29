@@ -1,71 +1,143 @@
-import fs from "fs";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 
-const DB_PATH = path.join(process.cwd(), "data/postcards.json");
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
-// 讀資料
+/**
+ * GET：取得所有明信片
+ */
 export async function GET() {
-  if (!fs.existsSync(DB_PATH)) fs.writeFileSync(DB_PATH, "[]");
-  const data = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
+  const { data, error } = await supabase
+    .from("postcards")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error) {
+    return Response.json(
+      { error: error.message },
+      { status: 500 }
+    );
+  }
+
   return Response.json(data);
 }
 
-// 新增
+/**
+ * POST：上傳圖片 + 寫入資料
+ */
 export async function POST(req: Request) {
-  const formData = await req.formData();
-  const file = formData.get("image") as File;
+  try {
+    const formData = await req.formData();
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
+    const file = formData.get("image") as File;
 
-  const fileName = `${Date.now()}-${file.name}`;
-  const filePath = path.join(process.cwd(), "public/uploads", fileName);
+    if (!file) {
+      return Response.json(
+        { error: "No image uploaded" },
+        { status: 400 }
+      );
+    }
 
-  fs.writeFileSync(filePath, buffer);
+    const fileName = `${Date.now()}-${file.name}`;
 
-  const newCard = {
-    id: Date.now(),
-    image: "/uploads/" + fileName,
-    coords: formData.get("coords") || "",
-    method: formData.get("method") || "",
-    country: formData.get("country") || "",
-  };
+    // 1️⃣ 上傳圖片到 Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from("postcards")
+      .upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
 
-  const old = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
-  old.push(newCard);
+    if (uploadError) {
+      return Response.json(
+        { error: uploadError.message },
+        { status: 500 }
+      );
+    }
 
-  fs.writeFileSync(DB_PATH, JSON.stringify(old, null, 2));
+    // 2️⃣ 取得公開 URL
+    const {
+      data: { publicUrl },
+    } = supabase.storage
+      .from("postcards")
+      .getPublicUrl(fileName);
 
-  return Response.json(newCard);
+    // 3️⃣ 寫入資料表
+    const { data, error } = await supabase
+      .from("postcards")
+      .insert([
+        {
+          image: publicUrl,
+          coords: formData.get("coords"),
+          method: formData.get("method"),
+          country: formData.get("country"),
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      return Response.json(
+        { error: error.message },
+        { status: 500 }
+      );
+    }
+
+    return Response.json(data);
+  } catch (err: any) {
+    return Response.json(
+      { error: err.message },
+      { status: 500 }
+    );
+  }
 }
 
-// ❌ 刪除
+/**
+ * DELETE：刪除明信片
+ */
 export async function DELETE(req: Request) {
   const { id } = await req.json();
 
-  const old = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
-  const filtered = old.filter((item: any) => item.id !== id);
+  const { error } = await supabase
+    .from("postcards")
+    .delete()
+    .eq("id", id);
 
-  fs.writeFileSync(DB_PATH, JSON.stringify(filtered, null, 2));
+  if (error) {
+    return Response.json(
+      { error: error.message },
+      { status: 500 }
+    );
+  }
 
   return Response.json({ success: true });
 }
 
-// ✏️ 編輯
+/**
+ * PUT：更新明信片
+ */
 export async function PUT(req: Request) {
   const body = await req.json();
 
-  const old = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
+  const { error } = await supabase
+    .from("postcards")
+    .update({
+      coords: body.coords,
+      method: body.method,
+      country: body.country,
+    })
+    .eq("id", body.id);
 
-  const updated = old.map((item: any) =>
-    item.id === body.id
-      ? { ...item, ...body }
-      : item
-  );
-
-  fs.writeFileSync(DB_PATH, JSON.stringify(updated, null, 2));
+  if (error) {
+    return Response.json(
+      { error: error.message },
+      { status: 500 }
+    );
+  }
 
   return Response.json({ success: true });
 }
