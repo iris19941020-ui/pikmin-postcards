@@ -128,7 +128,10 @@ export default function Home() {
               <p className="text-sm tracking-[0.2em] uppercase text-stone-400 mb-2">
                 Add postcard
               </p>
-              <h2 className="text-3xl font-black">新增明信片</h2>
+
+              <h2 className="text-3xl font-black">
+                新增明信片
+              </h2>
             </div>
 
             <div className="grid gap-3">
@@ -138,7 +141,10 @@ export default function Home() {
                 accept="image/*"
                 className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
                 onChange={(e) =>
-                  setForm({ ...form, image: e.target.files?.[0] || null })
+                  setForm({
+                    ...form,
+                    image: e.target.files?.[0] || null,
+                  })
                 }
               />
 
@@ -147,7 +153,10 @@ export default function Home() {
                 className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
                 value={form.coords}
                 onChange={(e) =>
-                  setForm({ ...form, coords: e.target.value })
+                  setForm({
+                    ...form,
+                    coords: e.target.value,
+                  })
                 }
               />
 
@@ -155,7 +164,10 @@ export default function Home() {
                 className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
                 value={form.method}
                 onChange={(e) =>
-                  setForm({ ...form, method: e.target.value })
+                  setForm({
+                    ...form,
+                    method: e.target.value,
+                  })
                 }
               >
                 <option value="菇">菇</option>
@@ -168,7 +180,10 @@ export default function Home() {
                 className="bg-stone-50 rounded-2xl px-4 py-4 text-sm"
                 value={form.country}
                 onChange={(e) =>
-                  setForm({ ...form, country: e.target.value })
+                  setForm({
+                    ...form,
+                    country: e.target.value,
+                  })
                 }
               />
 
@@ -180,6 +195,7 @@ export default function Home() {
                     setLoading(true);
 
                     const fd = new FormData();
+
                     fd.append("image", form.image!);
                     fd.append("coords", form.coords);
                     fd.append("method", form.method);
@@ -190,7 +206,9 @@ export default function Home() {
                       body: fd,
                     });
 
-                    if (!res.ok) throw new Error("upload failed");
+                    if (!res.ok) {
+                      throw new Error("upload failed");
+                    }
 
                     setForm({
                       image: null,
@@ -200,7 +218,9 @@ export default function Home() {
                     });
 
                     setShowUploadModal(false);
+
                     loadData();
+
                     showToast("新增成功 ✨");
 
                   } catch (err) {
@@ -212,6 +232,7 @@ export default function Home() {
               >
                 {loading ? "上傳中..." : "新增明信片"}
               </button>
+
             </div>
           </div>
         </div>
@@ -224,22 +245,32 @@ export default function Home() {
           <select
             className="bg-white border border-stone-200 rounded-full px-5 py-2 text-sm shadow-sm"
             value={countryFilter}
-            onChange={(e) => setCountryFilter(e.target.value)}
+            onChange={(e) =>
+              setCountryFilter(e.target.value)
+            }
           >
             <option value="all">全部國家</option>
+
             {countries.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
 
           <select
             className="bg-white border border-stone-200 rounded-full px-5 py-2 text-sm shadow-sm"
             value={methodFilter}
-            onChange={(e) => setMethodFilter(e.target.value)}
+            onChange={(e) =>
+              setMethodFilter(e.target.value)
+            }
           >
             <option value="all">全部方式</option>
+
             {methods.map((m) => (
-              <option key={m} value={m}>{m}</option>
+              <option key={m} value={m}>
+                {m}
+              </option>
             ))}
           </select>
 
@@ -261,23 +292,77 @@ export default function Home() {
                 src={card.image}
                 className="w-full cursor-pointer hover:scale-[1.03] transition"
                 onClick={() => {
-                  navigator.clipboard.writeText(card.coords);
+                  navigator.clipboard.writeText(
+                    card.coords
+                  );
+
                   showToast("已複製座標 📋");
                 }}
               />
 
-              <div className="p-4">
+              <div className="p-4 relative">
+
+                {/* delete button */}
+                <button
+                  className="absolute top-4 right-4 w-8 h-8 rounded-full bg-red-500 text-white text-sm hover:scale-105 transition"
+                  onClick={async () => {
+
+                    const ok = confirm(
+                      "確定要刪除這張明信片嗎？"
+                    );
+
+                    if (!ok) return;
+
+                    try {
+
+                      const res = await fetch(
+                        "/api/postcards",
+                        {
+                          method: "DELETE",
+                          headers: {
+                            "Content-Type":
+                              "application/json",
+                          },
+                          body: JSON.stringify({
+                            id: card.id,
+                          }),
+                        }
+                      );
+
+                      if (!res.ok) {
+                        throw new Error();
+                      }
+
+                      loadData();
+
+                      showToast("已刪除 🗑️");
+
+                    } catch {
+
+                      showToast("刪除失敗 ❌");
+
+                    }
+                  }}
+                >
+                  🗑️
+                </button>
 
                 <div className="flex justify-between mb-3">
+
                   <span className="text-xs px-3 py-1 rounded-full bg-stone-100">
                     {card.country}
                   </span>
-                  <span className="text-xs px-3 py-1 rounded-full bg-stone-900 text-white">
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-stone-900 text-white mr-10">
                     {card.method}
                   </span>
+
                 </div>
 
-                <p className="text-sm break-all">{card.coords}</p>
+                <p className="text-sm break-all">
+                  {card.coords}
+                </p>
+
               </div>
             </div>
           ))}
@@ -287,3 +372,6 @@ export default function Home() {
     </main>
   );
 }
+
+
+
